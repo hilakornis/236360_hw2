@@ -3,7 +3,7 @@
 /* Declarations section */
 #include <stdio.h>
 #include "output.hpp"
-#include "source.tab.hpp"
+#include "parser.tab.hpp"
 %}
 
 %option yylineno
@@ -43,11 +43,10 @@ continue                    return CONTINUE;
 =                           return ASSIGN;
 {reltionalOp}               return RELOP;
 {binarOp}                   return BINOP;
-\/\/(.)*                    return COMMENT;
 {letter}({letter}|{digit})* return ID;
 {number}|0    				return NUM;
-"([^\n\r\"\\]|\\[rnt"\\])+" return STRING;
+\"([^\n\r\"\\]|\\[rnt"\\])+\" return STRING;
 {whitespace}				;
-//[^\r\n]*[\r|\n|\r\n]?     ;
-.							errorLex(yylineno);
+\/\/[^\r\n]*[\r|\n|\r\n]\?     ;
+.							output::errorLex(yylineno);
 %%
