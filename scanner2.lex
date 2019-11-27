@@ -12,8 +12,6 @@ digit   		([0-9])
 digitExZiro     ([1-9])
 letter  		([a-zA-Z])
 whitespace		([\t\n\r ]|\n)
-reltionalOp     (==|!=|<|>|<=|>=)
-binarOp         ([\+\-\*\/])
 number ({digitExZiro}{digit}*)
 
 %%
@@ -41,12 +39,16 @@ continue                    return CONTINUE;
 \{                          return LBRACE;
 \}                          return RBRACE;
 =                           return ASSIGN;
-{reltionalOp}               return RELOP;
-{binarOp}                   return BINOP;
+(>|<|<=|>=)                 return RELOPNONASSOC;
+(==|!=)                     return RELOPASSOC;
+(\+|\-)                      return ADDSUB;
+(\*|\/)                      return MULDIV;
 {letter}({letter}|{digit})* return ID;
 {number}|0    				return NUM;
-\"([^\n\r\"\\]|\\[rnt"\\])+\" return STRING;
+\"([^\n\r\"\\]|\\[rnt\"\\])+\" return STRING;
 {whitespace}				;
-\/\/[^\r\n]*[\r|\n|\r\n]\?     ;
-.							output::errorLex(yylineno);
+\/\/[^\r\n]*[\r|\n|\r\n]?     ;
+
+
+.							{output::errorLex(yylineno);exit(0);}
 %%

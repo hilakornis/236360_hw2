@@ -1,7 +1,8 @@
 %{
 	#include "output.hpp"
 	extern int yylex();
-	int yyerror(char const* str);
+	extern int yylineno;
+	void yyerror(char const* str);
 
 	using namespace output;
 
@@ -13,26 +14,28 @@
 %token B
 %token BOOL
 %token ENUM
-%token AND
-%token OR
-%token NOT
+%left OR
+%left AND
 %token TRUE
 %token FALSE
 %token RETURN
 %token IF
-%token ELSE
 %token WHILE
 %token BREAK
 %token CONTINUE
 %token SC
 %token COMMA
 %token LPAREN
-%token RPAREN
 %token LBRACE
 %token RBRACE
 %token ASSIGN
-%token RELOP
-%token BINOP
+%left RELOPASSOC
+%nonassoc RELOPNONASSOC
+%left ADDSUB
+%left MULDIV
+%nonassoc NOT
+%nonassoc RPAREN
+%nonassoc ELSE
 %token ID
 %token NUM
 %token STRING
@@ -41,7 +44,8 @@
 %%
 Program        :    Enums Funcs {output::printProductionRule(1);}
                ;
-Funcs          :    {output::printProductionRule(2);}| FuncDecl Funcs {output::printProductionRule(3);}
+Funcs          :    {output::printProductionRule(2);}
+					| FuncDecl Funcs {output::printProductionRule(3);}
                ;
 FuncDecl       :    RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE {output::printProductionRule(4);}
                ;
@@ -82,14 +86,14 @@ Type           :    INT {output::printProductionRule(40);}|  BYTE {output::print
                ;
 EnumType       :    ENUM ID {output::printProductionRule(43);}
                ;
-Exp            :    LPAREN Exp RPAREN {output::printProductionRule(44);}| Exp BINOP Exp {output::printProductionRule(45);}|
+Exp            :    LPAREN Exp RPAREN {output::printProductionRule(44);}| Exp MULDIV Exp {output::printProductionRule(45);}|
                     ID {output::printProductionRule(46);}| Call {output::printProductionRule(47);}| NUM {output::printProductionRule(48);}|
                     NUM B {output::printProductionRule(49);}| STRING {output::printProductionRule(50);}|  TRUE {output::printProductionRule(51);}|
                     FALSE {output::printProductionRule(52);}| NOT Exp {output::printProductionRule(53);}| Exp AND Exp {output::printProductionRule(54);}|
-                    Exp OR Exp {output::printProductionRule(55);}|  Exp RELOP Exp {output::printProductionRule(56);}|
-                    LPAREN Type RPAREN Exp {output::printProductionRule(57);}
+                    Exp OR Exp {output::printProductionRule(55);}|  Exp RELOPNONASSOC Exp {output::printProductionRule(56);}|
+                    LPAREN Type RPAREN Exp {output::printProductionRule(57);}|Exp ADDSUB Exp {output::printProductionRule(58);}
+                    |Exp RELOPASSOC Exp {output::printProductionRule(59);}
                ;
-
 
 
 %%
@@ -99,8 +103,8 @@ int main()
 	yyparse();
 }
 
-int yyerror(char const* str)
+void yyerror(char const* str)
 {
-	errorSyn(99);
+	errorSyn(yylineno);
 	exit(0);
 }
