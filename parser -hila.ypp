@@ -19,24 +19,24 @@
 %token TRUE
 %token FALSE
 %token RETURN
-%nonassoc IF
+%token IF
 %token WHILE
 %token BREAK
 %token CONTINUE
 %token SC
 %token COMMA
-%nonassoc RPAREN
 %token LPAREN
 %token LBRACE
 %token RBRACE
+%right ASSIGN
 %left RELOPASSOC
 %nonassoc RELOPNONASSOC
 %left ADDSUB
 %left MULDIV
 %right NOT
+%nonassoc RPAREN
 %nonassoc SS
 %nonassoc ELSE
-%right ASSIGN
 %token ID
 %token NUM
 %token STRING
@@ -103,36 +103,25 @@ Statement      :    LBRACE Statements RBRACE {  output::printProductionRule(21);
 			   | 	BREAK SC {  output::printProductionRule(34);  }
 			   |	CONTINUE SC {  output::printProductionRule(35);  }
                ;
-			   
+
 Call           :    ID LPAREN ExpList RPAREN {  output::printProductionRule(36);  }
 			   | 	ID LPAREN RPAREN {  output::printProductionRule(37);  }
                ;
-			   
+
 ExpList        :    Exp {  output::printProductionRule(38);  }
 			   | 	Exp COMMA ExpList {  output::printProductionRule(39);  }
                ;
-			   
+
 Type           :    INT {  output::printProductionRule(40);  }
 			   | 	BYTE {  output::printProductionRule(41);  }
 			   |  	BOOL {  output::printProductionRule(42);  }
                ;
-			   
+
 EnumType       :    ENUM ID {  output::printProductionRule(43);  }
                ;
-			   
-Exp            :    Exp OR Exp {  output::printProductionRule(55);  }
-			   | 	Exp AND Exp {  output::printProductionRule(54);  }
-			   |	Exp RELOPASSOC Exp {  //output::printProductionRule(59);
-											output::printProductionRule(56);			   
-									   }
-			   |  	Exp RELOPNONASSOC Exp {  output::printProductionRule(56);  }
-			   |    Exp MULDIV Exp {  output::printProductionRule(45);  }
-			   |	LPAREN Type RPAREN Exp {  output::printProductionRule(57);  }
-			   |	LPAREN Exp RPAREN {  output::printProductionRule(44);  }
-			   | 	NOT Exp {  output::printProductionRule(53);  }		
-			   |	Exp ADDSUB Exp {  //output::printProductionRule(58);
-										output::printProductionRule(45);
-								   }
+
+Exp            :    LPAREN Exp RPAREN {  output::printProductionRule(44);  }
+			   |	Exp MULDIV Exp {  output::printProductionRule(45);  }
 			   |    ID {  output::printProductionRule(46);  }
 			   | 	Call {  output::printProductionRule(47);  }
 			   | 	NUM {  output::printProductionRule(48);  }
@@ -140,8 +129,18 @@ Exp            :    Exp OR Exp {  output::printProductionRule(55);  }
 			   | 	STRING {  output::printProductionRule(50);  }
 			   |  	TRUE {  output::printProductionRule(51);  }
 			   |	FALSE {  output::printProductionRule(52);  }
-			   
-			   ;
+			   | 	NOT Exp {  output::printProductionRule(53);  }
+			   | 	Exp AND Exp {  output::printProductionRule(54);  }
+			   |	Exp OR Exp {  output::printProductionRule(55);  }
+			   |  	Exp RELOPNONASSOC Exp {  output::printProductionRule(56);  }
+			   |	LPAREN Type RPAREN Exp {  output::printProductionRule(57);  }
+			   |	Exp ADDSUB Exp {  //output::printProductionRule(58);
+										output::printProductionRule(45);
+								   }
+               |	Exp RELOPASSOC Exp {  //output::printProductionRule(59);
+											output::printProductionRule(56);
+									   }
+               ;
 
 
 %%
